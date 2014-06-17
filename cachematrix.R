@@ -1,8 +1,8 @@
-## This is a set of functions to create, cache and retrieve the invers
+## This is a set of functions to create, cache and retrieve the inverse
 ## of a matrix. 
 
 ## To use you need to first prime the cache with something like my_cache<-makeCacheMatrix(my_matrix)
-## where my_matrix is an invertable matrix.
+## where my_matrix is an invertible matrix.
 ## Then cacheSolve(my_matrix).
 
 ## This function creates a list of functions for caching an inverted matrix
@@ -11,8 +11,8 @@
 
 makeCacheMatrix <- function(x = matrix()) {
 
-        ## mi is going to be the inverted matrix
-        ## We set it to NULL so we can check if the cached data exist
+        ## mi is going to be the inverted matrix.
+        ## We set it to NULL so we can check if cached data exist.
         mi <- NULL
         
         ## Allows us to set the value of the matrix directly.
@@ -51,19 +51,27 @@ makeCacheMatrix <- function(x = matrix()) {
 }
 
 
-## THis function will return the inversion of an invertable matrix
+## THis function will return the inversion of an invertible matrix
 ## (from cache if it exists).
 
 cacheSolve <- function(x, ...) {
 
+        if (class(x) !=  "list")
+        {
+                message("Your data is not an R list.")
+                message("You can generate a correct list by using")
+                return(message("makeCacheMatrix(x) where x is a matrix."))
+                
+        }
+        
+
         ## Return a matrix that is the inverse of 'x'
         mi <- x$getSolveInverse()
 
-        print(mi)
         ## If mi is not empty, we're done.
         if (!is.null(mi))
         {
-                message("getting cached data")
+                message("Getting cached data.")
                 
                 return(mi)
         }
@@ -78,13 +86,27 @@ cacheSolve <- function(x, ...) {
         {
                 message("Your matrix is not square.")
                 
+                return(data)                
+        }
+        ## Don't process an empty matrix.
+        if (dims[1] == 1 & is.na(data[1,1]))
+        {
+                return(message("Your matrix is empty."))
+                
+        }
+
+        tryResult<-try(mi <- solve(data, ...), silent=TRUE)
+        ## Cope with any errors
+        if("try-error" %in% class(tryResult))
+        {
+                message("Your matrix cannot be inverted or there was another error.")
+                
                 return(data)
                 
         }
         
-        mi <- solve(data, ...)
-        
         ## Let's set it for the next time.
         x$setSolveInverse(mi)
         mi
+
 }
